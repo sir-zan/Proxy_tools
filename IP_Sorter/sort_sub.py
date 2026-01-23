@@ -4,17 +4,38 @@ from collections import defaultdict
 INPUT_FILE = "proxies_jumbled.txt"
 OUTPUT_FILE = "proxies_sorted.txt"
 
-def extract_ip(proxy_line):
-    # socks5://user:pass@IP:PORT
-    ip_part = proxy_line.split("@")[1].rsplit(":", 1)[0]
+def extract_ip(line):
+    """Extract IP from various proxy formats"""
+    # Remove protocol if present (socks5://, http://, https://)
+    if "://" in line:
+        line = line.split("://")[-1]
+    
+    # Remove credentials if present (user:pass@)
+    if "@" in line:
+        line = line.split("@")[-1]
+    
+    # Remove port if present (IP:PORT)
+    ip_part = line.split(":")[0]
+    
     return ipaddress.ip_address(ip_part)
+
+def is_valid_proxy(line):
+    """Check if line is a valid proxy line"""
+    line = line.strip()
+    if not line or line.startswith("#"):
+        return False
+    try:
+        extract_ip(line)
+        return True
+    except:
+        return False
 
 def extract_subnet(ip):
     return ipaddress.ip_network(f"{ip}/24", strict=False)
 
 # Read proxies
 with open(INPUT_FILE, "r", encoding="utf-8") as f:
-    proxies = [line.strip() for line in f if line.strip()]
+    proxies = [line.strip() for line in f if is_valid_proxy(line)]
 
 # Sort proxies numerically by IP
 proxies_sorted = sorted(proxies, key=extract_ip)
