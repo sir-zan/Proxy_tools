@@ -12,9 +12,9 @@ PROXIES_FILE = "proxies.txt"
 BASE_URL = "https://earnapp.com/dashboard/api/check_ip"
 
 CONCURRENCY = 8
-MAX_RETRIES = 7
+MAX_RETRIES = 15 # 15 max
 
-RETRY_DELAYS = [2, 4, 6]          # seconds
+RETRY_DELAYS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]  # seconds
 PROXY_COOLDOWN_SOCKS = 10         # seconds
 PROXY_COOLDOWN_423 = 20           # seconds
 
@@ -130,16 +130,15 @@ async def worker(worker_id):
                             print(f"[OK]   {ip:<15} blocked=True  via {proxy}")
 
             except aiohttp.ClientResponseError as e:
-                retry_count[ip_raw] += 1
-
                 if e.status == 423:
                     proxy_cooldown_until[proxy] = time.time() + PROXY_COOLDOWN_423
                     reason = "HTTP 423 (locked)"
                 else:
                     reason = f"HTTP {e.status}"
 
-                if retry_count[ip_raw] <= MAX_RETRIES:
-                    delay = RETRY_DELAYS[retry_count[ip_raw] - 1]
+                if retry_count[ip_raw] < MAX_RETRIES:
+                    delay = RETRY_DELAYS[retry_count[ip_raw]]
+                    retry_count[ip_raw] += 1
                     print(f"[RETRY] {ip:<15} via {proxy} ({reason}) +{delay}s")
                     await asyncio.sleep(delay)
                     ip_queue.append(ip_raw)
@@ -147,11 +146,11 @@ async def worker(worker_id):
                     write_line(TIMEOUT_FILE, ip_raw)
 
             except Exception as e:
-                retry_count[ip_raw] += 1
                 proxy_cooldown_until[proxy] = time.time() + PROXY_COOLDOWN_SOCKS
 
-                if retry_count[ip_raw] <= MAX_RETRIES:
-                    delay = RETRY_DELAYS[retry_count[ip_raw] - 1]
+                if retry_count[ip_raw] < MAX_RETRIES:
+                    delay = RETRY_DELAYS[retry_count[ip_raw]]
+                    retry_count[ip_raw] += 1
                     print(f"[RETRY] {ip:<15} via {proxy} (SOCKS) +{delay}s")
                     await asyncio.sleep(delay)
                     ip_queue.append(ip_raw)

@@ -126,8 +126,10 @@ However, you can run each module independently based on your needs.
 - `CONCURRENCY`: Number of simultaneous checks (default: 8)
   - Recommended: 1 concurrency per 30-35 IPs
   - Example: For 250 IPs → 8 concurrency (covers ~16 subnets)
-- `MAX_RETRIES`: Maximum retry attempts (default: 7)
-- `RETRY_DELAYS`: Delay between retries in seconds [2, 4, 6]
+- `MAX_RETRIES`: Maximum retry attempts (default: 15, **15 is the maximum**)
+  - Setting higher than 15 will cause errors
+  - Each retry increases delay: [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30] seconds
+- `RETRY_DELAYS`: Delay between retries in seconds [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
 - `PROXY_COOLDOWN_SOCKS`: Cooldown after SOCKS error (10 seconds)
 - `PROXY_COOLDOWN_423`: Cooldown after rate limit (20 seconds)
 - `CONNECT_TIMEOUT`: Connection timeout (5 seconds)
@@ -218,8 +220,8 @@ cd ../IP_Checker
 **Edit checker.py** (Optional - customize these):
 ```python
 CONCURRENCY = 8                # Adjust based on IP count
-MAX_RETRIES = 7                # Increase for more thorough checking
-RETRY_DELAYS = [2, 4, 6]      # Adjust retry timing
+MAX_RETRIES = 15               # Maximum is 15, do not set higher
+RETRY_DELAYS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]  # Retry timing
 PROXY_COOLDOWN_SOCKS = 10      # Increase if rate limited
 PROXY_COOLDOWN_423 = 20        # Increase if rate limited
 ```
