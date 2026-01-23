@@ -377,15 +377,29 @@ No changes needed unless you want different file names.
 
 ---
 
+## � Credits & Attribution
+
+**⭐ This project is a branch/fork from [Asster's Original Repository](https://github.com/kdans1887-byte/earnappIPchecker)**
+
+Huge thanks to **Asster** for creating the original IP checking tool and making it available to the community. This project builds upon their excellent work!
+
+---
+
 ## 📝 License
 
-[Add your license information here]
+This project is branched from Asster's work. Please respect the original creator's contributions.
 
 ---
 
 ## 🤝 Contributing
 
-[Add contributing guidelines here]
+**Special thanks to Asster** for the original implementation and ongoing support!
+
+If you'd like to contribute improvements or report issues:
+1. Feel free to submit pull requests with enhancements
+2. Report bugs and issues you encounter
+3. Share optimization tips and best practices
+4. Give credit to **Asster** if you're building upon this work
 
 ---
 
