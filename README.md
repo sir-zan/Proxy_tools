@@ -1,4 +1,4 @@
-# EarnApp IP Checker
+# Proxy Tools
 
 A comprehensive tool for generating, checking, and sorting proxy IP addresses for use with EarnApp. This project helps you validate proxy usability and organize them by subnet for optimal performance.
 
