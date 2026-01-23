@@ -1,6 +1,6 @@
 # Proxy Tools
 
-A comprehensive tool for generating, checking, and sorting proxy IP addresses for use with EarnApp. This project helps you validate proxy usability and organize them by subnet for optimal performance.
+A comprehensive tool for generating, checking, sorting, and mixing proxy IP addresses for use with EarnApp. This project helps you validate proxy usability and organize them by subnet for optimal performance.
 
 ## 📋 Table of Contents
 
@@ -13,6 +13,7 @@ A comprehensive tool for generating, checking, and sorting proxy IP addresses fo
   - [IP_Generator](#ip_generator)
   - [IP_Checker](#ip_checker)
   - [IP_Sorter](#ip_sorter)
+  - [IP_Mixer](#ip_mixer)
 - [Usage Guide](#usage-guide)
 - [Configuration](#configuration)
 - [Output Files](#output-files)
@@ -20,13 +21,14 @@ A comprehensive tool for generating, checking, and sorting proxy IP addresses fo
 
 ## 🎯 Project Overview
 
-This project provides three main functionalities:
+This project provides four main functionalities:
 
 1. **Generate** proxy IPs from known subnet ranges
 2. **Check** proxy availability and performance using the EarnApp IP Checker API
 3. **Sort** valid proxies by IP address and subnet for easy organization
+4. **Mix** proxies into balanced sets with even subnet distribution
 
-The primary goal is to validate proxy usability while providing tools to generate and organize them efficiently.
+The primary goal is to validate proxy usability while providing tools to generate, organize, and distribute them efficiently.
 
 ## 📁 Project Structure
 
@@ -43,11 +45,17 @@ earnappIPchecker/
 │   ├── blacklisted.txt     # Output: Detected as proxies (invalid)
 │   ├── timeouted.txt       # Output: Timed out proxies
 │   └── retry_later.txt     # Temporary: Proxies being retried
-└── IP_Sorter/
-    ├── sort.py             # Sort proxies without subnet grouping
-    ├── sort_sub.py         # Sort proxies with subnet grouping
-    ├── proxies_jumbled.txt # Input file: Unsorted proxies
-    └── proxies_sorted.txt  # Output file: Sorted proxies
+├── IP_Sorter/
+│   ├── sort.py             # Sort proxies without subnet grouping
+│   ├── sort_sub.py         # Sort proxies with subnet grouping
+│   ├── proxies_jumbled.txt # Input file: Unsorted proxies
+│   └── proxies_sorted.txt  # Output file: Sorted proxies
+└── IP_Mixer/
+    ├── mixer.py            # Mix proxies into balanced subnet sets
+    ├── proxies.txt         # Input file: Proxies to mix
+    ├── set1.txt            # Output set 1
+    ├── set2.txt            # Output set 2
+    └── setN.txt            # Output set N
 ```
 
 ## 📦 Requirements
@@ -173,6 +181,54 @@ However, you can run each module independently based on your needs.
 
 ---
 
+### IP_Mixer
+
+**Purpose:** Split a large proxy list into multiple balanced sets with even subnet distribution
+
+**How it works:**
+- Reads proxies from `proxies.txt`
+- Groups proxies by /24 subnet
+- Takes one proxy per subnet at a time (round-robin)
+- Distributes proxies evenly across multiple output sets
+- Randomizes order to avoid detectable patterns
+- Preserves original proxy format
+
+**Why use it:**
+- Avoid clustering proxies from the same subnet
+- Distribute proxies across multiple machines/containers
+- Load-balance residential proxy usage
+- Prevent patterns that are easy to detect
+
+**Format Support:**
+Works with any proxy format:
+- `socks5://user:pass@IP:PORT`
+- `http://IP:PORT`
+- `https://IP:PORT`
+- `user:pass@IP:PORT`
+- `IP:PORT`
+- `IP`
+
+**Important Features:**
+- ✔ No duplicate proxies across sets
+- ✔ Balanced subnet distribution
+- ✔ Each set has proxies from different subnets
+- ✔ Original format is preserved
+- ✔ Randomized ordering
+- ✔ Safe fallback if subnets run out
+
+**Interactive Input:**
+When you run the script, it asks for:
+- Number of sets to generate
+- Number of proxies per set
+
+Example:
+```
+Enter number of sets to generate: 5
+Enter IPs per set: 30
+```
+
+---
+
 ## 💻 Usage Guide
 
 ### Step 1: Generate Proxies
@@ -268,6 +324,56 @@ python -u sort.py
 Output: Plain sorted proxy list
 
 **Output:** `proxies_sorted.txt` will contain the sorted proxies
+
+---
+
+### Step 4: Mix Proxies into Balanced Sets
+
+**Navigate to IP_Mixer folder:**
+```bash
+cd ../IP_Mixer
+```
+
+**Prepare input:**
+Put proxies in `proxies.txt`
+- Can be any format (see supported formats above)
+- Can be mixed formats in the same file
+
+**Run the mixer:**
+```bash
+python -u mixer.py
+```
+
+**Answer the prompts:**
+```
+Enter number of sets to generate: 5
+Enter IPs per set: 30
+```
+
+**What happens:**
+- Loads all proxies from `proxies.txt`
+- Groups by /24 subnet automatically
+- Generates balanced sets with round-robin subnet selection
+- Randomizes order in each set
+- Creates output files
+
+**Output Files:**
+- `set1.txt`: Set 1 with balanced proxies
+- `set2.txt`: Set 2 with balanced proxies
+- `setN.txt`: Set N with balanced proxies
+
+**Example Output:**
+```
+Loaded proxies            : 500
+Detected /24 subnets      : 20
+✅ Written set1.txt    (30 proxies)
+✅ Written set2.txt    (30 proxies)
+✅ Written set3.txt    (30 proxies)
+✅ Written set4.txt    (30 proxies)
+✅ Written set5.txt    (30 proxies)
+```
+
+Each set will have proxies evenly distributed across all detected subnets!
 
 ---
 
