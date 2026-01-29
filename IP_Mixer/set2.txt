@@ -1,5 +1,0 @@
-socks5://arkon:ms12dcv015a@147.90.100.121:4141
-socks5://arkon:ms12dcv015a@147.90.97.107:3368
-socks5://arkon:ms12dcv015a@65.86.162.244:3758
-socks5://arkon:ms12dcv015a@147.90.96.185:3193
-socks5://arkon:ms12dcv015a@65.86.163.87:3854
