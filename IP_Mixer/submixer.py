@@ -1,11 +1,12 @@
 import random
 import ipaddress
 from collections import defaultdict, deque
-import os
 import sys
+import os
 
 # ================= FILES =================
 INPUT_FILE = "proxies.txt"
+EXCEPTION_FILE = "exceptions.txt"
 OUTPUT_PREFIX = "set"
 # =========================================
 
@@ -42,6 +43,22 @@ if SETS <= 0 or IPS_PER_SET <= 0:
     sys.exit(1)
 
 
+# ---------- load exceptions ----------
+excluded_ips = set()
+
+if os.path.exists(EXCEPTION_FILE):
+    with open(EXCEPTION_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            ip = extract_ip(line)
+            if ip:
+                excluded_ips.add(ip)
+
+print(f"Excluded IPs loaded       : {len(excluded_ips)}")
+
+
 # ---------- load proxies ----------
 with open(INPUT_FILE, "r", encoding="utf-8") as f:
     raw_lines = [
@@ -50,19 +67,25 @@ with open(INPUT_FILE, "r", encoding="utf-8") as f:
         if line.strip() and not line.startswith("#")
     ]
 
-print(f"\nLoaded proxies            : {len(raw_lines)}")
+print(f"Loaded proxies            : {len(raw_lines)}")
 
 # ---------- group by /24 subnet ----------
 subnets = defaultdict(deque)
+skipped = 0
 
 for line in raw_lines:
     ip = extract_ip(line)
     if not ip:
         continue
 
+    if ip in excluded_ips:
+        skipped += 1
+        continue
+
     subnet = ipaddress.ip_network(f"{ip}/24", strict=False)
     subnets[subnet].append(line)
 
+print(f"Skipped by exception      : {skipped}")
 print(f"Detected /24 subnets      : {len(subnets)}")
 
 # Shuffle inside each subnet
